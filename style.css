@@ -1,0 +1,20 @@
+#room {
+  display: flex;
+  flex-direction: row;
+  gap: 2dvh;
+}
+#stateMessage {
+  display: flex;
+  flex-direction: row;
+  gap: 2dvh;
+}
+.cardMessage {
+  display: flex;
+  flex-direction: column;
+}
+.redCard {
+  color: red;
+}
+.blackCard {
+  color: black;
+}

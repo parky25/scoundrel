@@ -4,6 +4,7 @@ const hpMessage = document.querySelector("#hpMessage");
 const leftCardMessage = document.querySelector("#leftCardMessage");
 const weaponMessage = document.querySelector("#weaponMessage");
 const lastMonsterMessage = document.querySelector("#lastMonsterMessage");
+const avoidBtn = document.querySelector('#avoidBtn');
 const maxNum = 14;
 const maxHp = 20;
 const patterns = {S: '♠', C: '♣', H: '♥', D: '♦'};
@@ -100,33 +101,54 @@ function stateMessageRender() {
   leftCardMessage.textContent = "남은 카드 수: " + state.deck.length;
   weaponMessage.textContent = "장착 무기: " + ((state.weapon > 0) ? state.weapon : "없음");
   lastMonsterMessage.textContent = "무기로 제거된 마지막 몬스터: " + ((state.lastMonster <= maxNum) ? state.lastMonster : "없음");
+  if (state.beforeAvoid) {
+    avoidBtn.disabled = true;
+  }
+  else {
+    avoidBtn.disabled = false;
+  }
 }
 
 // 방 카드 갱신
 function roomRender() {
   room.replaceChildren();
-  for (let card of state.room) {
-    room.appendChild(createCardElement(card));
+  for (let i = 0; i < 4; i++) {
+    room.appendChild(createCardElement(state.room[i], i));
   }
 }
 
 // 카드 요소 만들기
-function createCardElement(card) {
+function createCardElement(card, index) {
   let cardMessage = document.createElement("div");
   let cardShow = document.createElement("div");
-  let cardSelect = document.createElement("div");
+  let cardBtn = document.createElement("div");
   cardMessage.appendChild(cardShow);
-  cardMessage.appendChild(cardSelect);
+  cardMessage.appendChild(cardBtn);
   cardMessage.classList.add('cardMessage');
   cardShow.textContent = cardText(card);
   if (cardType(card) === 'monster') {
     cardShow.classList.add('blackCard');
-    cardSelect.appendChild(createButton((cardText(card) + " 맨손"), 'blackCard'));
-    cardSelect.appendChild(createButton((cardText(card) + " 무기"), 'blackCard'));
+    let cardAttackHand = createButton((cardText(card) + " 맨손"), 'blackCard');
+    cardAttackHand.addEventListener('click', () => cardSelect(index, 'attackHand'));
+    cardBtn.appendChild(cardAttackHand);
+    let cardAttackWeapon = createButton((cardText(card) + " 무기"), 'blackCard');
+    cardAttackWeapon.addEventListener('click', () => cardSelect(index, 'attackWeapon'));
+    cardBtn.appendChild(cardAttackWeapon);
+    if ((card['num'] >= state.lastMonster) || (state.weapon === 0)) {
+      cardAttackWeapon.disabled = true;
+    }
+  }
+  else if (cardType(card) === 'weapon') {
+    cardShow.classList.add('redCard');
+    let cardWeapon = createButton((cardText(card) + " 선택"), 'redCard');
+    cardWeapon.addEventListener('click', () => cardSelect(index, 'weapon'));
+    cardBtn.appendChild(cardWeapon);
   }
   else {
     cardShow.classList.add('redCard');
-    cardSelect.appendChild(createButton((cardText(card) + " 선택"), 'redCard'));
+    let cardPotion = createButton((cardText(card) + " 선택"), 'redCard')
+    cardPotion.addEventListener('click', () => cardSelect(index, 'potion'));
+    cardBtn.appendChild(cardPotion);
   }
   return cardMessage;
 }
@@ -137,4 +159,30 @@ function createButton(text, className) {
   button.textContent = text;
   button.classList.add(className);
   return button;
+}
+
+// 카드 선택
+function cardSelect(index, type) {
+  if (type === 'attackWeapon') {
+    state.hp -= Math.max(0, state.room[index]['num'] - state.weapon);
+    state.lastMonster = state.room[index]['num'];
+  }
+  else if (type === 'attackHand') {
+    state.hp -= state.room[index]['num'];
+  }
+  else if (type === 'weapon') {
+    state.weapon = state.room[index]['num'];
+    state.lastMonster = maxNum + 1;
+  }
+  else {
+    state.hp = Math.min(maxHp, state.hp + state.room[index]['num']);
+    state.potionUsed = true;
+  }
+  state.room.splice(index, 1);
+  state.usedCard++;
+  if (state.usedCard === 3) {
+    state.beforeAvoid = false;
+    roomStart();
+  }
+  render();
 }

@@ -106,7 +106,7 @@ function stateMessageRender() {
   leftCardMessage.textContent = "남은 카드 수: " + state.deck.length;
   weaponMessage.textContent = "장착 무기: " + ((state.weapon > 0) ? state.weapon : "없음");
   lastMonsterMessage.textContent = "무기로 제거된 마지막 몬스터: " + ((state.lastMonster <= maxNum) ? state.lastMonster : "없음");
-  if (state.beforeAvoid) {
+  if (state.beforeAvoid || state.usedCard > 0) {
     avoidBtn.disabled = true;
   }
   else {

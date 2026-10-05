@@ -11,13 +11,18 @@ const patterns = {S: '♠', C: '♣', H: '♥', D: '♦'};
 const letters = {11: 'J', 12: 'Q', 13: 'K', 14: 'A'};
 const state = {};
 
+// 리스너 추가
+avoidBtn.addEventListener('click', function () {
+  state.room = [];
+  state.beforeAvoid = true;
+  roomStart();
+  render();
+});
+
+// 게임 시작
 stateInitialize();
 roomStart();
 render();
-
-for (let card of state.room) {
-  console.log("문앙: " + card['pat'] + ", 수: " + card['num']);
-}
 
 // 상태 초기화
 function stateInitialize() {
@@ -112,7 +117,7 @@ function stateMessageRender() {
 // 방 카드 갱신
 function roomRender() {
   room.replaceChildren();
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < state.room.length; i++) {
     room.appendChild(createCardElement(state.room[i], i));
   }
 }

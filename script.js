@@ -5,6 +5,7 @@ const leftCardMessage = document.querySelector("#leftCardMessage");
 const weaponMessage = document.querySelector("#weaponMessage");
 const lastMonsterMessage = document.querySelector("#lastMonsterMessage");
 const avoidBtn = document.querySelector('#avoidBtn');
+const restartBtn = document.querySelector('#restartBtn');
 const maxNum = 14;
 const maxHp = 20;
 const patterns = {S: '♠', C: '♣', H: '♥', D: '♦'};
@@ -13,16 +14,24 @@ const state = {};
 
 // 리스너 추가
 avoidBtn.addEventListener('click', function () {
+  for (let card of state.room) {
+    state.deck.push(card);
+  }
   state.room = [];
   state.beforeAvoid = true;
   roomStart();
   render();
 });
+restartBtn.addEventListener('click', () => gameStart());
+
+gameStart();
 
 // 게임 시작
-stateInitialize();
-roomStart();
-render();
+function gameStart() {
+  stateInitialize();
+  roomStart();
+  render();
+}
 
 // 상태 초기화
 function stateInitialize() {

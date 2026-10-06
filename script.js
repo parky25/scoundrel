@@ -6,6 +6,7 @@ const weaponMessage = document.querySelector("#weaponMessage");
 const lastMonsterMessage = document.querySelector("#lastMonsterMessage");
 const avoidBtn = document.querySelector('#avoidBtn');
 const restartBtn = document.querySelector('#restartBtn');
+const endingMessage = document.querySelector('#endingMessage');
 const maxNum = 14;
 const maxHp = 20;
 const patterns = {S: '♠', C: '♣', H: '♥', D: '♦'};
@@ -14,6 +15,9 @@ const state = {};
 
 // 리스너 추가
 avoidBtn.addEventListener('click', function () {
+  if (state.gameState !== 'playing') {
+    return;
+  }
   for (let card of state.room) {
     state.deck.push(card);
   }
@@ -28,6 +32,7 @@ gameStart();
 
 // 게임 시작
 function gameStart() {
+  endingMessage.textContent = '';
   stateInitialize();
   roomStart();
   render();
@@ -79,6 +84,9 @@ function roomStart() {
   state.usedCard = 0;
   while ((state.room.length < 4) && (state.deck.length !== 0)) {
     state.room.push(state.deck.shift());
+  }
+  if ((state.deck.length === 0) && (state.room.length < 4)) {
+    gameWin();
   }
 }
 
@@ -177,6 +185,9 @@ function createButton(text, className) {
 
 // 카드 선택
 function cardSelect(index, type) {
+  if (state.gameState !== 'playing') {
+    return;
+  }
   if (type === 'attackWeapon') {
     state.hp -= Math.max(0, state.room[index]['num'] - state.weapon);
     state.lastMonster = state.room[index]['num'];
@@ -194,9 +205,41 @@ function cardSelect(index, type) {
   }
   state.room.splice(index, 1);
   state.usedCard++;
+  if (state.hp <= 0) {
+    gameLose();
+  }
   if (state.usedCard === 3) {
     state.beforeAvoid = false;
     roomStart();
   }
   render();
+}
+
+// 게임 패배
+function gameLose() {
+  let score = 0;
+  for (let roomCard of state.room) {
+    if (cardType(roomCard) === 'monster') {
+      score += roomCard['num'];
+    }
+  }
+  for (let deckCard of state.deck) {
+    if (cardType(deckCard) === 'monster') {
+      score += deckCard['num'];
+    }
+  }
+  endingMessage.textContent = '게임 패배ㅠㅠ 점수: -' + score;
+  state.gameState = 'lose';
+}
+
+// 게임 승리
+function gameWin() {
+  let score = state.hp;
+  for (let roomCard of state.room) {
+    if (cardType(roomCard) === 'potion') {
+      score += roomCard['num'];
+    }
+  }
+  endingMessage.textContent = '게임 승리! 점수: ' + score;
+  state.gameState = 'win';
 }

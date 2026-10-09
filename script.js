@@ -200,15 +200,17 @@ function cardSelect(index, type) {
     state.lastMonster = maxNum + 1;
   }
   else {
-    state.hp = Math.min(maxHp, state.hp + state.room[index]['num']);
-    state.potionUsed = true;
+    if (!state.potionUsed) {
+      state.hp = Math.min(maxHp, state.hp + state.room[index]['num']);
+      state.potionUsed = true;
+    }
   }
   state.room.splice(index, 1);
   state.usedCard++;
   if (state.hp <= 0) {
     gameLose();
   }
-  if (state.usedCard === 3) {
+  else if (state.usedCard === 3) {
     state.beforeAvoid = false;
     roomStart();
   }

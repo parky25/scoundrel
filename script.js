@@ -142,14 +142,13 @@ function roomRender() {
 // 카드 요소 만들기
 function createCardElement(card, index) {
   let cardMessage = document.createElement("div");
-  let cardShow = document.createElement("div");
+  let cardBox = makeCard(card);
   let cardBtn = document.createElement("div");
-  cardMessage.appendChild(cardShow);
+  cardMessage.appendChild(cardBox);
   cardMessage.appendChild(cardBtn);
   cardMessage.classList.add('cardMessage');
-  cardShow.textContent = cardText(card);
   if (cardType(card) === 'monster') {
-    cardShow.classList.add('blackCard');
+    cardBox.classList.add('blackCard');
     let cardAttackHand = createButton((cardText(card) + " 맨손"), 'blackCard');
     cardAttackHand.addEventListener('click', () => cardSelect(index, 'attackHand'));
     cardBtn.appendChild(cardAttackHand);
@@ -161,13 +160,13 @@ function createCardElement(card, index) {
     }
   }
   else if (cardType(card) === 'weapon') {
-    cardShow.classList.add('redCard');
+    cardBox.classList.add('redCard');
     let cardWeapon = createButton((cardText(card) + " 선택"), 'redCard');
     cardWeapon.addEventListener('click', () => cardSelect(index, 'weapon'));
     cardBtn.appendChild(cardWeapon);
   }
   else {
-    cardShow.classList.add('redCard');
+    cardBox.classList.add('redCard');
     let cardPotion = createButton((cardText(card) + " 선택"), 'redCard')
     cardPotion.addEventListener('click', () => cardSelect(index, 'potion'));
     cardBtn.appendChild(cardPotion);
@@ -244,4 +243,28 @@ function gameWin() {
   }
   endingMessage.textContent = '게임 승리! 점수: ' + score;
   state.gameState = 'win';
+}
+
+// 카드 틀 만들기
+function makeCard(card) {
+  let cardBox = document.createElement('div');
+  cardBox.classList.add('cardBox');
+  let cardLabelTop = document.createElement('div');
+  let cardLabelBottom = document.createElement('div');
+  cardLabelTop.classList.add('cardLabelTop');
+  cardLabelBottom.classList.add('cardLabelBottom');
+  cardLabelTop.textContent = cardText(card);
+  cardLabelBottom.textContent = cardText(card);
+  cardBox.appendChild(cardLabelTop);
+  cardBox.appendChild(cardLabelBottom);
+  cardBox.appendChild(makeCardCenter(card));
+  return cardBox;
+}
+
+// 카드 가운데 만들기
+function makeCardCenter(card) {
+  let cardLabelCenter = document.createElement('div');
+  cardLabelCenter.classList.add('cardLabelCenter');
+  cardLabelCenter.textContent = patterns[card['pat']];
+  return cardLabelCenter;
 }
